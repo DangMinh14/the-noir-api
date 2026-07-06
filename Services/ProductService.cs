@@ -9,8 +9,9 @@ public class ProductService(AppDbContext db) : IProductService
 {
     // Shown when a product has no photo yet, so the catalog never has a
     // broken <img>. A real photo can be uploaded any time afterwards.
-    public const string FallbackImageUrl =
-        "https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=1200&auto=format&fit=crop";
+    // Served from wwwroot/branding (not wwwroot/uploads, which is gitignored
+    // per-environment) so it ships with the repo like any other brand asset.
+    public const string FallbackImageUrl = "/branding/product-fallback.jpg";
 
     public async Task<List<ProductResponse>> GetAllAsync()
     {
