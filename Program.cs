@@ -22,6 +22,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -69,7 +70,7 @@ app.MapGet("/", () => new
     name = "Thé Noir API",
     endpoints = new[]
     {
-        "/api/products", "/api/categories", "/api/cities", "/api/auth", "/api/uploads", "/openapi/v1.json",
+        "/api/products", "/api/categories", "/api/cities", "/api/auth", "/api/uploads", "/api/orders", "/openapi/v1.json",
     },
 });
 
