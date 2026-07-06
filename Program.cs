@@ -23,6 +23,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 
+app.MapGet("/", () => new
+{
+    name = "Thé Noir API",
+    endpoints = new[] { "/api/products", "/api/maisons", "/openapi/v1.json" },
+});
+
 app.MapProducts();
 app.MapMaisons();
 
