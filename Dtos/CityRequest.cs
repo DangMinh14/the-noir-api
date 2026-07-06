@@ -1,13 +1,19 @@
-namespace TheNoir.Api.Features.Maisons;
+using System.ComponentModel.DataAnnotations;
 
-public class City
+namespace TheNoir.Api.Dtos;
+
+public class CityRequest
 {
-    public int Id { get; set; }
+    [Required, MaxLength(100)]
     public required string Name { get; set; }
+
+    [Range(0, 1000)]
     public int MaisonCount { get; set; }
 
-    // e.g. Kind = "Flagship", Address = "42 Vườn Trà" — the frontend joins them for display.
+    [Required, MaxLength(50)]
     public required string Kind { get; set; }
+
+    [Required, MaxLength(200)]
     public required string Address { get; set; }
 
     public int SortOrder { get; set; }

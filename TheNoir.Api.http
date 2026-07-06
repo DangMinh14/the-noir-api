@@ -4,16 +4,66 @@
 GET {{host}}/
 Accept: application/json
 
-###
+### Products
 
-# Signature drinks
 GET {{host}}/api/products
 Accept: application/json
 
 ###
 
-# Cities and maison counts
-GET {{host}}/api/maisons
+GET {{host}}/api/products/1
 Accept: application/json
+
+###
+
+POST {{host}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Lotus Cloud",
+  "category": "Pure Tea",
+  "description": "Green tea scented with fresh lotus, steeped at 80 degrees for three minutes.",
+  "priceVnd": 62000,
+  "imageUrl": "https://images.unsplash.com/photo-example",
+  "imageAlt": "A pale green tea in a glass cup",
+  "sortOrder": 5
+}
+
+###
+
+PUT {{host}}/api/products/1
+Content-Type: application/json
+
+{
+  "name": "Noir Signature",
+  "category": "Milk Tea",
+  "description": "Our house black tea folded into silky fresh milk, finished with burnt-caramel pearls.",
+  "priceVnd": 65000,
+  "imageUrl": "https://images.unsplash.com/photo-1558857563-b371033873b8?q=80&w=1200&auto=format&fit=crop",
+  "imageAlt": "A glass of milk tea with tapioca pearls on a dark table",
+  "sortOrder": 1
+}
+
+###
+
+DELETE {{host}}/api/products/5
+
+### Cities
+
+GET {{host}}/api/cities
+Accept: application/json
+
+###
+
+POST {{host}}/api/cities
+Content-Type: application/json
+
+{
+  "name": "Cần Thơ",
+  "maisonCount": 1,
+  "kind": "Riverside",
+  "address": "8 Bến Sương",
+  "sortOrder": 5
+}
 
 ###

@@ -1,4 +1,4 @@
-namespace TheNoir.Api.Features.Products;
+namespace TheNoir.Api.Models;
 
 public class Product
 {
