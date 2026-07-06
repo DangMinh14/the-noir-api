@@ -45,7 +45,12 @@ Data lives in the database only (no seed data in code). The local `thenoir.db` i
 
 ## Roadmap
 
-- [x] CRUD: products, cities
+- [x] CRUD: products, cities, categories
+- [x] Auth + admin-only writes (JWT, User/Admin roles)
+- [x] Image upload for products
+- [ ] Orders/cart (no Order entity yet — nothing to actually purchase)
+- [ ] Real email service (forgot-password currently returns the reset token directly, dev-only)
 - [ ] Newsletter subscription
-- [ ] Auth + admin-only writes
 - [ ] Tea tasting booking
+
+Full cross-repo audit and phased plan: [the-noir/ROADMAP.md](https://github.com/DangMinh14/the-noir/blob/main/ROADMAP.md).
