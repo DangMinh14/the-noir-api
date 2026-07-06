@@ -10,7 +10,8 @@ namespace TheNoir.Api.Services;
 public class AuthService(
     AppDbContext db,
     IPasswordHasher<User> hasher,
-    ITokenService tokens) : IAuthService
+    ITokenService tokens,
+    IEmailService emailService) : IAuthService
 {
     public async Task<ServiceResult<AuthResponse>> RegisterAsync(RegisterRequest request)
     {
@@ -95,17 +96,27 @@ public class AuthService(
         var email = request.Email.Trim().ToLowerInvariant();
         var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-        // Dev-only behaviour: the token is handed back in the response.
-        // Once email sending exists, always return the generic message
-        // and deliver the token by email instead.
+        // Same generic message whether or not the account exists, so a
+        // caller cannot use this endpoint to probe which emails are registered.
+        const string genericMessage = "If that email has an account, a reset code has been sent to it.";
         if (user is null)
-            return new ForgotPasswordResponse("If that email has an account, a reset code has been issued.", null);
+            return new ForgotPasswordResponse(genericMessage);
 
         user.ResetToken = RandomNumberGenerator.GetHexString(32);
         user.ResetTokenExpiresAt = DateTime.UtcNow.AddMinutes(30);
         await db.SaveChangesAsync();
 
-        return new ForgotPasswordResponse("Reset code issued. It expires in 30 minutes.", user.ResetToken);
+        await emailService.SendAsync(
+            user.Email,
+            "Reset your Thé Noir password",
+            $"""
+            <p>Someone asked to reset the password for this account.</p>
+            <p>Your reset code (valid for 30 minutes):</p>
+            <p style="font-size:20px;font-weight:600;letter-spacing:2px">{user.ResetToken}</p>
+            <p>If this wasn't you, you can ignore this email.</p>
+            """);
+
+        return new ForgotPasswordResponse(genericMessage);
     }
 
     public async Task<ServiceResult<UserResponse>> ResetPasswordAsync(ResetPasswordRequest request)

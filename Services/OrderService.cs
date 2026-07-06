@@ -5,7 +5,7 @@ using TheNoir.Api.Models;
 
 namespace TheNoir.Api.Services;
 
-public class OrderService(AppDbContext db) : IOrderService
+public class OrderService(AppDbContext db, IEmailService emailService) : IOrderService
 {
     public async Task<ServiceResult<OrderResponse>> CreateAsync(int userId, CreateOrderRequest request)
     {
@@ -51,7 +51,23 @@ public class OrderService(AppDbContext db) : IOrderService
         await db.SaveChangesAsync();
         await db.Entry(order).Reference(o => o.City).LoadAsync();
 
+        var userEmail = await db.Users.Where(u => u.Id == userId).Select(u => u.Email).FirstAsync();
+        await emailService.SendAsync(userEmail, $"Order #{order.Id} confirmed", BuildOrderConfirmationHtml(order));
+
         return ServiceResult<OrderResponse>.Ok(OrderResponse.From(order));
+    }
+
+    private static string BuildOrderConfirmationHtml(Order order)
+    {
+        var rows = string.Join("", order.Items.Select(i =>
+            $"<tr><td>{i.ProductName} x{i.Quantity}</td><td style=\"text-align:right\">{i.LineTotalVnd:N0}₫</td></tr>"));
+
+        return $"""
+            <p>Thanks for your order! Here's what's coming:</p>
+            <table style="width:100%;border-collapse:collapse">{rows}</table>
+            <p><strong>Total: {order.TotalVnd:N0}₫</strong></p>
+            <p>Pickup at {order.City?.Name}.</p>
+            """;
     }
 
     public async Task<List<OrderResponse>> GetMineAsync(int userId)
@@ -81,16 +97,26 @@ public class OrderService(AppDbContext db) : IOrderService
         return OrderResponse.From(order);
     }
 
-    public async Task<List<OrderResponse>> GetAllAsync()
+    public async Task<PagedResult<OrderResponse>> GetAllAsync(string? search, int page, int pageSize)
     {
-        var orders = await db.Orders
-            .AsNoTracking()
-            .Include(o => o.Items)
-            .Include(o => o.City)
+        var query = db.Orders.AsNoTracking().Include(o => o.Items).Include(o => o.City).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(o => o.Id.ToString() == term ||
+                                      EF.Functions.Like(o.Status, $"%{term}%") ||
+                                      (o.City != null && EF.Functions.Like(o.City.Name, $"%{term}%")));
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
             .OrderByDescending(o => o.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
-        return orders.Select(OrderResponse.From).ToList();
+        return new PagedResult<OrderResponse>(items.Select(OrderResponse.From).ToList(), totalCount, page, pageSize);
     }
 
     public async Task<ServiceResult<OrderResponse>> UpdateStatusAsync(int id, string status)

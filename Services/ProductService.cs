@@ -24,6 +24,27 @@ public class ProductService(AppDbContext db) : IProductService
         return products.Select(ProductResponse.From).ToList();
     }
 
+    public async Task<PagedResult<ProductResponse>> GetPagedAsync(string? search, int page, int pageSize)
+    {
+        var query = db.Products.AsNoTracking().Include(p => p.Category).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(p => EF.Functions.Like(p.Name, $"%{term}%") ||
+                                      EF.Functions.Like(p.Description, $"%{term}%"));
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderBy(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<ProductResponse>(items.Select(ProductResponse.From).ToList(), totalCount, page, pageSize);
+    }
+
     public async Task<ProductResponse?> GetByIdAsync(int id)
     {
         var product = await db.Products

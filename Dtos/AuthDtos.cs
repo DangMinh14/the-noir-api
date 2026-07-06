@@ -77,6 +77,4 @@ public record UserResponse(
 
 public record AuthResponse(string Token, DateTime ExpiresAt, UserResponse User);
 
-// Dev-only shape: the reset token is returned in the response until real
-// email delivery exists. Remove ResetToken from here once emails are sent.
-public record ForgotPasswordResponse(string Message, string? ResetToken);
+public record ForgotPasswordResponse(string Message);

@@ -17,6 +17,15 @@ public class ProductsController(IProductService products) : ControllerBase
     public async Task<ActionResult<List<ProductResponse>>> GetAll() =>
         await products.GetAllAsync();
 
+    // Paged/searchable variant for the admin table; the flat GetAll above
+    // stays untouched since the landing page, /menu and checkout depend on
+    // its unpaged array shape.
+    [AllowAnonymous]
+    [HttpGet("search")]
+    public async Task<ActionResult<PagedResult<ProductResponse>>> Search(
+        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
+        await products.GetPagedAsync(search, page, pageSize);
+
     [AllowAnonymous]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProductResponse>> GetById(int id)

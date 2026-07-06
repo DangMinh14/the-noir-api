@@ -13,8 +13,9 @@ namespace TheNoir.Api.Controllers;
 public class UsersController(IUserService users) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<UserResponse>>> GetAll() =>
-        await users.GetAllAsync();
+    public async Task<ActionResult<PagedResult<UserResponse>>> GetAll(
+        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
+        await users.GetAllAsync(search, page, pageSize);
 
     [HttpPut("{id:int}/role")]
     public async Task<ActionResult<UserResponse>> UpdateRole(int id, UpdateRoleRequest request)

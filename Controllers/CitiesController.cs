@@ -18,6 +18,12 @@ public class CitiesController(ICityService cities) : ControllerBase
         await cities.GetAllAsync();
 
     [AllowAnonymous]
+    [HttpGet("search")]
+    public async Task<ActionResult<PagedResult<City>>> Search(
+        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
+        await cities.GetPagedAsync(search, page, pageSize);
+
+    [AllowAnonymous]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<City>> GetById(int id)
     {

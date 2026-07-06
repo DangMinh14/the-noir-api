@@ -23,6 +23,8 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddHttpClient<IEmailService, EmailService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

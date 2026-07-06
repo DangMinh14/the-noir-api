@@ -18,6 +18,26 @@ public class CategoryService(AppDbContext db) : ICategoryService
         return categories.Select(CategoryResponse.From).ToList();
     }
 
+    public async Task<PagedResult<CategoryResponse>> GetPagedAsync(string? search, int page, int pageSize)
+    {
+        var query = db.Categories.AsNoTracking().Include(c => c.Products).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(c => EF.Functions.Like(c.Name, $"%{term}%"));
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderBy(c => c.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<CategoryResponse>(items.Select(CategoryResponse.From).ToList(), totalCount, page, pageSize);
+    }
+
     public async Task<ServiceResult<CategoryResponse>> CreateAsync(CategoryRequest request)
     {
         var name = request.Name.Trim();

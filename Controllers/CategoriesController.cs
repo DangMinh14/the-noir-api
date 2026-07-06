@@ -17,6 +17,12 @@ public class CategoriesController(ICategoryService categories) : ControllerBase
     public async Task<ActionResult<List<CategoryResponse>>> GetAll() =>
         await categories.GetAllAsync();
 
+    [AllowAnonymous]
+    [HttpGet("search")]
+    public async Task<ActionResult<PagedResult<CategoryResponse>>> Search(
+        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
+        await categories.GetPagedAsync(search, page, pageSize);
+
     [HttpPost]
     public async Task<ActionResult<CategoryResponse>> Create(CategoryRequest request)
     {

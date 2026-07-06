@@ -13,6 +13,27 @@ public class CityService(AppDbContext db) : ICityService
     public Task<City?> GetByIdAsync(int id) =>
         db.Cities.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
 
+    public async Task<PagedResult<City>> GetPagedAsync(string? search, int page, int pageSize)
+    {
+        var query = db.Cities.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(c => EF.Functions.Like(c.Name, $"%{term}%") ||
+                                      EF.Functions.Like(c.Address, $"%{term}%"));
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderBy(c => c.SortOrder)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<City>(items, totalCount, page, pageSize);
+    }
+
     public async Task<City> CreateAsync(CityRequest request)
     {
         var now = DateTime.UtcNow;

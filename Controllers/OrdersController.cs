@@ -33,8 +33,9 @@ public class OrdersController(IOrderService orders) : ControllerBase
 
     [Authorize(Roles = UserRoles.Admin)]
     [HttpGet]
-    public async Task<ActionResult<List<OrderResponse>>> GetAll() =>
-        await orders.GetAllAsync();
+    public async Task<ActionResult<PagedResult<OrderResponse>>> GetAll(
+        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
+        await orders.GetAllAsync(search, page, pageSize);
 
     [Authorize(Roles = UserRoles.Admin)]
     [HttpPut("{id:int}/status")]
