@@ -63,10 +63,16 @@ public class UpdateRoleRequest
     public required string Role { get; set; }
 }
 
-public record UserResponse(int Id, string Email, string DisplayName, string Role, DateTime CreatedAt)
+public record UserResponse(
+    int Id,
+    string Email,
+    string DisplayName,
+    string Role,
+    DateTime CreatedAt,
+    DateTime UpdatedAt)
 {
     public static UserResponse From(User user) =>
-        new(user.Id, user.Email, user.DisplayName, user.Role, user.CreatedAt);
+        new(user.Id, user.Email, user.DisplayName, user.Role, user.CreatedAt, user.UpdatedAt);
 }
 
 public record AuthResponse(string Token, DateTime ExpiresAt, UserResponse User);

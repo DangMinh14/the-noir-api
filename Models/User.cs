@@ -16,6 +16,7 @@ public class User
     public required string PasswordHash { get; set; }
     public string Role { get; set; } = UserRoles.User;
     public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     // Set by the forgot-password flow, cleared once used.
     public string? ResetToken { get; set; }

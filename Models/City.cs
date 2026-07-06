@@ -10,5 +10,9 @@ public class City
     public required string Kind { get; set; }
     public required string Address { get; set; }
 
+    // Display order in the homepage "Find Us" list — lower shows first.
     public int SortOrder { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

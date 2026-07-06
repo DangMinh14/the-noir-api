@@ -19,13 +19,15 @@ public class AuthService(
         if (await db.Users.AnyAsync(u => u.Email == email))
             return ServiceResult<AuthResponse>.Fail("This email is already registered.");
 
+        var now = DateTime.UtcNow;
         var user = new User
         {
             Email = email,
             DisplayName = request.DisplayName.Trim(),
             PasswordHash = "",
             Role = UserRoles.User,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = now,
+            UpdatedAt = now,
         };
         user.PasswordHash = hasher.HashPassword(user, request.Password);
 
@@ -65,6 +67,7 @@ public class AuthService(
             return ServiceResult<UserResponse>.Fail("Account no longer exists.");
 
         user.DisplayName = request.DisplayName.Trim();
+        user.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
         return ServiceResult<UserResponse>.Ok(UserResponse.From(user));
     }
@@ -82,6 +85,7 @@ public class AuthService(
         }
 
         user.PasswordHash = hasher.HashPassword(user, request.NewPassword);
+        user.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
         return ServiceResult<UserResponse>.Ok(UserResponse.From(user));
     }
@@ -122,6 +126,7 @@ public class AuthService(
         user.PasswordHash = hasher.HashPassword(user, request.NewPassword);
         user.ResetToken = null;
         user.ResetTokenExpiresAt = null;
+        user.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
 
         return ServiceResult<UserResponse>.Ok(UserResponse.From(user));

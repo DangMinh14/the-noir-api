@@ -342,6 +342,10 @@ __pycache__/
 # Tabs Studio
 *.tss
 
+# User-uploaded product images (not source, regenerated per environment)
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+
 # Telerik's JustMock configuration file
 *.jmconfig
 

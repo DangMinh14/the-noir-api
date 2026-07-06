@@ -20,6 +20,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUploadService, UploadService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -56,6 +58,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // serves wwwroot/uploads/* for product images
 app.UseCors();
 
 app.UseAuthentication();
@@ -64,7 +67,10 @@ app.UseAuthorization();
 app.MapGet("/", () => new
 {
     name = "Thé Noir API",
-    endpoints = new[] { "/api/products", "/api/cities", "/api/auth", "/openapi/v1.json" },
+    endpoints = new[]
+    {
+        "/api/products", "/api/categories", "/api/cities", "/api/auth", "/api/uploads", "/openapi/v1.json",
+    },
 });
 
 app.MapControllers();

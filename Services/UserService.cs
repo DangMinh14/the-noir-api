@@ -26,6 +26,7 @@ public class UserService(AppDbContext db) : IUserService
             return ServiceResult<UserResponse>.Fail("User not found.");
 
         user.Role = role;
+        user.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
         return ServiceResult<UserResponse>.Ok(UserResponse.From(user));
     }

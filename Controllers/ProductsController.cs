@@ -14,29 +14,30 @@ public class ProductsController(IProductService products) : ControllerBase
 {
     [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<List<Product>>> GetAll() =>
+    public async Task<ActionResult<List<ProductResponse>>> GetAll() =>
         await products.GetAllAsync();
 
     [AllowAnonymous]
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Product>> GetById(int id)
+    public async Task<ActionResult<ProductResponse>> GetById(int id)
     {
         var product = await products.GetByIdAsync(id);
         return product is null ? NotFound() : product;
     }
 
     [HttpPost]
-    public async Task<ActionResult<Product>> Create(ProductRequest request)
+    public async Task<ActionResult<ProductResponse>> Create(ProductRequest request)
     {
-        var product = await products.CreateAsync(request);
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        var result = await products.CreateAsync(request);
+        if (!result.Succeeded) return BadRequest(new { error = result.Error });
+        return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<Product>> Update(int id, ProductRequest request)
+    public async Task<ActionResult<ProductResponse>> Update(int id, ProductRequest request)
     {
-        var product = await products.UpdateAsync(id, request);
-        return product is null ? NotFound() : product;
+        var result = await products.UpdateAsync(id, request);
+        return result.Succeeded ? result.Value! : BadRequest(new { error = result.Error });
     }
 
     [HttpDelete("{id:int}")]

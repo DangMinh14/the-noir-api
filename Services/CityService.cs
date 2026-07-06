@@ -15,6 +15,7 @@ public class CityService(AppDbContext db) : ICityService
 
     public async Task<City> CreateAsync(CityRequest request)
     {
+        var now = DateTime.UtcNow;
         var city = new City
         {
             Name = request.Name,
@@ -22,6 +23,8 @@ public class CityService(AppDbContext db) : ICityService
             Kind = request.Kind,
             Address = request.Address,
             SortOrder = request.SortOrder,
+            CreatedAt = now,
+            UpdatedAt = now,
         };
 
         db.Cities.Add(city);
@@ -39,6 +42,7 @@ public class CityService(AppDbContext db) : ICityService
         city.Kind = request.Kind;
         city.Address = request.Address;
         city.SortOrder = request.SortOrder;
+        city.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
         return city;
