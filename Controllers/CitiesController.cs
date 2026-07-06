@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TheNoir.Api.Dtos;
 using TheNoir.Api.Models;
@@ -5,14 +6,18 @@ using TheNoir.Api.Services;
 
 namespace TheNoir.Api.Controllers;
 
+// Reads are public (the landing page uses them); writes are admin only.
 [ApiController]
 [Route("api/cities")]
+[Authorize(Roles = UserRoles.Admin)]
 public class CitiesController(ICityService cities) : ControllerBase
 {
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<List<City>>> GetAll() =>
         await cities.GetAllAsync();
 
+    [AllowAnonymous]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<City>> GetById(int id)
     {

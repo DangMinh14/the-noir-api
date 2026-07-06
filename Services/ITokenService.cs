@@ -1,0 +1,8 @@
+using TheNoir.Api.Models;
+
+namespace TheNoir.Api.Services;
+
+public interface ITokenService
+{
+    (string Token, DateTime ExpiresAt) CreateToken(User user);
+}

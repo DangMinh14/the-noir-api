@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TheNoir.Api.Dtos;
 using TheNoir.Api.Models;
@@ -5,14 +6,18 @@ using TheNoir.Api.Services;
 
 namespace TheNoir.Api.Controllers;
 
+// Reads are public (the landing page uses them); writes are admin only.
 [ApiController]
 [Route("api/products")]
+[Authorize(Roles = UserRoles.Admin)]
 public class ProductsController(IProductService products) : ControllerBase
 {
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<List<Product>>> GetAll() =>
         await products.GetAllAsync();
 
+    [AllowAnonymous]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Product>> GetById(int id)
     {
