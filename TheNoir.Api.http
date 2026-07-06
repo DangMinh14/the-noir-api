@@ -1,6 +1,19 @@
-@TheNoir.Api_HostAddress = http://localhost:5051
+@host = http://localhost:5051
 
-GET {{TheNoir.Api_HostAddress}}/weatherforecast/
+# Root: API info and available routes
+GET {{host}}/
+Accept: application/json
+
+###
+
+# Signature drinks
+GET {{host}}/api/products
+Accept: application/json
+
+###
+
+# Cities and maison counts
+GET {{host}}/api/maisons
 Accept: application/json
 
 ###

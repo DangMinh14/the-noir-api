@@ -13,6 +13,7 @@ Then open:
 
 - `http://localhost:5051/api/products` — signature drinks
 - `http://localhost:5051/api/maisons` — cities and locations
+- `http://localhost:5051/scalar` — interactive API reference, test endpoints from the browser (Development only)
 - `http://localhost:5051/openapi/v1.json` — OpenAPI document (Development only)
 
 Requires the .NET 10 SDK and the EF Core CLI tool (`dotnet tool install --global dotnet-ef`).

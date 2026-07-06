@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using TheNoir.Api.Data;
 using TheNoir.Api.Features.Maisons;
 using TheNoir.Api.Features.Products;
@@ -18,6 +19,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); // interactive API reference at /scalar
 }
 
 app.UseHttpsRedirection();
