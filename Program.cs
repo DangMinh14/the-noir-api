@@ -48,8 +48,13 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
+// Comma-separated list in config/env (e.g. Cors__AllowedOrigins on the host),
+// falling back to the local Next.js dev server so `dotnet run` still works out of the box.
+var allowedOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? "http://localhost:3000")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()));
+    p.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 
 builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
@@ -60,6 +65,10 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+
+    // Applies pending EF Core migrations on boot so a fresh deploy (e.g. a new
+    // Fly.io volume) gets a schema without anyone running `dotnet ef` by hand.
+    await db.Database.MigrateAsync();
 
     if (!await db.Users.AnyAsync(u => u.Email == "admin"))
     {
@@ -73,7 +82,10 @@ using (var scope = app.Services.CreateScope())
             CreatedAt = now,
             UpdatedAt = now,
         };
-        admin.PasswordHash = hasher.HashPassword(admin, "admin");
+        // Falls back to "admin" for local dev; production sets Seed__AdminPassword
+        // so a wiped/ephemeral disk never reseeds a publicly-known default password.
+        var adminPassword = builder.Configuration["Seed:AdminPassword"] ?? "admin";
+        admin.PasswordHash = hasher.HashPassword(admin, adminPassword);
 
         db.Users.Add(admin);
         await db.SaveChangesAsync();

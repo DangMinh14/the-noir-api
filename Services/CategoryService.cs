@@ -38,6 +38,16 @@ public class CategoryService(AppDbContext db) : ICategoryService
         return new PagedResult<CategoryResponse>(items.Select(CategoryResponse.From).ToList(), totalCount, page, pageSize);
     }
 
+    public async Task<CategoryResponse?> GetByIdAsync(int id)
+    {
+        var category = await db.Categories
+            .AsNoTracking()
+            .Include(c => c.Products)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        return category is null ? null : CategoryResponse.From(category);
+    }
+
     public async Task<ServiceResult<CategoryResponse>> CreateAsync(CategoryRequest request)
     {
         var name = request.Name.Trim();

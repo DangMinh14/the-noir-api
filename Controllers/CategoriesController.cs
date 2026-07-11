@@ -23,6 +23,14 @@ public class CategoriesController(ICategoryService categories) : ControllerBase
         [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
         await categories.GetPagedAsync(search, page, pageSize);
 
+    [AllowAnonymous]
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<CategoryResponse>> GetById(int id)
+    {
+        var category = await categories.GetByIdAsync(id);
+        return category is null ? NotFound() : category;
+    }
+
     [HttpPost]
     public async Task<ActionResult<CategoryResponse>> Create(CategoryRequest request)
     {
