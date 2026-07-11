@@ -23,8 +23,10 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IToppingService, ToppingService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddHttpClient<IEmailService, EmailService>();
+builder.Services.AddHostedService<OrderAutoCancelService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -53,6 +55,30 @@ builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+
+    if (!await db.Users.AnyAsync(u => u.Email == "admin"))
+    {
+        var now = DateTime.UtcNow;
+        var admin = new User
+        {
+            Email = "admin",
+            DisplayName = "Admin",
+            PasswordHash = "",
+            Role = UserRoles.Admin,
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
+        admin.PasswordHash = hasher.HashPassword(admin, "admin");
+
+        db.Users.Add(admin);
+        await db.SaveChangesAsync();
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

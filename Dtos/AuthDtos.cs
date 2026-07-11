@@ -5,7 +5,7 @@ namespace TheNoir.Api.Dtos;
 
 public class RegisterRequest
 {
-    [Required, EmailAddress, MaxLength(200)]
+    [Required, MaxLength(200)]
     public required string Email { get; set; }
 
     [Required, MaxLength(100)]
@@ -17,7 +17,7 @@ public class RegisterRequest
 
 public class LoginRequest
 {
-    [Required, EmailAddress]
+    [Required]
     public required string Email { get; set; }
 
     [Required]
@@ -41,13 +41,13 @@ public class ChangePasswordRequest
 
 public class ForgotPasswordRequest
 {
-    [Required, EmailAddress]
+    [Required]
     public required string Email { get; set; }
 }
 
 public class ResetPasswordRequest
 {
-    [Required, EmailAddress]
+    [Required]
     public required string Email { get; set; }
 
     [Required]

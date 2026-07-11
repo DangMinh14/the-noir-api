@@ -11,6 +11,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<User> Users => Set<User>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<Topping> Toppings => Set<Topping>();
+    public DbSet<OrderItemTopping> OrderItemToppings => Set<OrderItemTopping>();
+    public DbSet<OrderMessage> OrderMessages => Set<OrderMessage>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+        configurationBuilder.Properties<DateTime?>().HaveConversion<NullableUtcDateTimeConverter>();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,5 +55,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(oi => oi.ProductId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<OrderItemTopping>()
+            .HasOne(oit => oit.OrderItem)
+            .WithMany(oi => oi.Toppings)
+            .HasForeignKey(oit => oit.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderItemTopping>()
+            .HasOne(oit => oit.Topping)
+            .WithMany()
+            .HasForeignKey(oit => oit.ToppingId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<OrderMessage>()
+            .HasOne(m => m.Order)
+            .WithMany(o => o.Messages)
+            .HasForeignKey(m => m.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

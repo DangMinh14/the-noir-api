@@ -4,5 +4,5 @@ namespace TheNoir.Api.Services;
 
 public interface IUploadService
 {
-    Task<ServiceResult<string>> SaveProductImageAsync(IFormFile file);
+    Task<ServiceResult<string>> SaveImageAsync(IFormFile file);
 }

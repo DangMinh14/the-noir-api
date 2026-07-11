@@ -5,7 +5,14 @@ public static class UserRoles
     public const string User = "User";
     public const string Admin = "Admin";
 
-    public static readonly string[] All = [User, Admin];
+    // Employee role: can manage orders (the header notifications modal) but
+    // has no access to /admin (products, categories, users, etc).
+    public const string Staff = "Staff";
+
+    public static readonly string[] All = [User, Admin, Staff];
+
+    // For [Authorize(Roles = ...)] on endpoints both Admin and Staff may use.
+    public const string AdminOrStaff = $"{Admin},{Staff}";
 }
 
 public class User

@@ -11,7 +11,7 @@ public class UploadService(IWebHostEnvironment env) : IUploadService
         ["image/webp"] = ".webp",
     };
 
-    public async Task<ServiceResult<string>> SaveProductImageAsync(IFormFile file)
+    public async Task<ServiceResult<string>> SaveImageAsync(IFormFile file)
     {
         if (file.Length == 0)
             return ServiceResult<string>.Fail("File is empty.");

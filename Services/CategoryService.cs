@@ -45,7 +45,15 @@ public class CategoryService(AppDbContext db) : ICategoryService
             return ServiceResult<CategoryResponse>.Fail("A category with this name already exists.");
 
         var now = DateTime.UtcNow;
-        var category = new Category { Name = name, CreatedAt = now, UpdatedAt = now };
+        var category = new Category
+        {
+            Name = name,
+            ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim(),
+            ImageAlt = string.IsNullOrWhiteSpace(request.ImageAlt) ? null : request.ImageAlt.Trim(),
+            AllowsToppings = request.AllowsToppings,
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
 
         db.Categories.Add(category);
         await db.SaveChangesAsync();
@@ -63,6 +71,9 @@ public class CategoryService(AppDbContext db) : ICategoryService
             return ServiceResult<CategoryResponse>.Fail("A category with this name already exists.");
 
         category.Name = name;
+        category.ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim();
+        category.ImageAlt = string.IsNullOrWhiteSpace(request.ImageAlt) ? null : request.ImageAlt.Trim();
+        category.AllowsToppings = request.AllowsToppings;
         category.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
         return ServiceResult<CategoryResponse>.Ok(CategoryResponse.From(category));

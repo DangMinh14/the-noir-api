@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TheNoir.Api.Data;
 
@@ -10,9 +11,11 @@ using TheNoir.Api.Data;
 namespace TheNoir.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260710133923_AddProductDescriptionHtml")]
+    partial class AddProductDescriptionHtml
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
@@ -91,31 +94,13 @@ namespace TheNoir.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("AutoCancelled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("CityId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CustomerName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("PreparingAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("ReadyAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
@@ -168,12 +153,6 @@ namespace TheNoir.Api.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Size")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SizeSurchargeVnd")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("SugarLevel")
                         .HasColumnType("TEXT");
 
@@ -218,33 +197,6 @@ namespace TheNoir.Api.Migrations
                     b.HasIndex("ToppingId");
 
                     b.ToTable("OrderItemToppings");
-                });
-
-            modelBuilder.Entity("TheNoir.Api.Models.OrderMessage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("SenderRole")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderMessages");
                 });
 
             modelBuilder.Entity("TheNoir.Api.Models.Product", b =>
@@ -409,17 +361,6 @@ namespace TheNoir.Api.Migrations
                     b.Navigation("Topping");
                 });
 
-            modelBuilder.Entity("TheNoir.Api.Models.OrderMessage", b =>
-                {
-                    b.HasOne("TheNoir.Api.Models.Order", "Order")
-                        .WithMany("Messages")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("TheNoir.Api.Models.Product", b =>
                 {
                     b.HasOne("TheNoir.Api.Models.Category", "Category")
@@ -439,8 +380,6 @@ namespace TheNoir.Api.Migrations
             modelBuilder.Entity("TheNoir.Api.Models.Order", b =>
                 {
                     b.Navigation("Items");
-
-                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("TheNoir.Api.Models.OrderItem", b =>

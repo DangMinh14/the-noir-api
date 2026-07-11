@@ -14,6 +14,14 @@ public class ProductRequest
     [Required, MaxLength(500)]
     public required string Description { get; set; }
 
+    // Optional rich HTML from the admin's WYSIWYG editor, rendered on the
+    // product detail page. Sanitized client-side (sanitize-html.ts) both
+    // before this is sent and again before it's rendered with
+    // dangerouslySetInnerHTML, since admin sessions aren't a substitute
+    // for not trusting stored markup.
+    [MaxLength(20_000)]
+    public string? DescriptionHtml { get; set; }
+
     [Range(0, 10_000_000)]
     public int PriceVnd { get; set; }
 
@@ -30,9 +38,11 @@ public record ProductResponse(
     int Id,
     string Name,
     string Description,
+    string DescriptionHtml,
     int PriceVnd,
     int CategoryId,
     string CategoryName,
+    bool CategoryAllowsToppings,
     string ImageUrl,
     string ImageAlt,
     DateTime CreatedAt,
@@ -42,9 +52,11 @@ public record ProductResponse(
         p.Id,
         p.Name,
         p.Description,
+        p.DescriptionHtml ?? "",
         p.PriceVnd,
         p.CategoryId,
         p.Category?.Name ?? "",
+        p.Category?.AllowsToppings ?? true,
         p.ImageUrl ?? "",
         p.ImageAlt ?? "",
         p.CreatedAt,

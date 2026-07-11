@@ -12,10 +12,11 @@ namespace TheNoir.Api.Controllers;
 [Authorize]
 public class OrdersController(IOrderService orders) : ControllerBase
 {
+    [AllowAnonymous]
     [HttpPost]
     public async Task<ActionResult<OrderResponse>> Create(CreateOrderRequest request)
     {
-        var result = await orders.CreateAsync(CurrentUserId(), request);
+        var result = await orders.CreateAsync(CurrentUserIdOrNull(), request);
         if (!result.Succeeded) return BadRequest(new { error = result.Error });
         return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
@@ -31,13 +32,21 @@ public class OrdersController(IOrderService orders) : ControllerBase
         return order is null ? NotFound() : order;
     }
 
-    [Authorize(Roles = UserRoles.Admin)]
+    [Authorize(Roles = UserRoles.AdminOrStaff)]
     [HttpGet]
     public async Task<ActionResult<PagedResult<OrderResponse>>> GetAll(
-        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
-        await orders.GetAllAsync(search, page, pageSize);
+        [FromQuery] string? search, [FromQuery] string? status,
+        [FromQuery] int? cityId, [FromQuery] bool? autoCancelled,
+        [FromQuery] DateTime? from, [FromQuery] DateTime? to,
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 10) =>
+        await orders.GetAllAsync(search, status, cityId, autoCancelled, from, to, page, pageSize);
 
-    [Authorize(Roles = UserRoles.Admin)]
+    [Authorize(Roles = UserRoles.AdminOrStaff)]
+    [HttpGet("unseen-summary")]
+    public async Task<ActionResult<UnseenOrdersSummary>> GetUnseenSummary([FromQuery] DateTime since) =>
+        await orders.GetUnseenSummaryAsync(since);
+
+    [Authorize(Roles = UserRoles.AdminOrStaff)]
     [HttpPut("{id:int}/status")]
     public async Task<ActionResult<OrderResponse>> UpdateStatus(int id, UpdateOrderStatusRequest request)
     {
@@ -45,6 +54,26 @@ public class OrdersController(IOrderService orders) : ControllerBase
         return result.Succeeded ? result.Value! : BadRequest(new { error = result.Error });
     }
 
+    [HttpGet("{id:int}/messages")]
+    public async Task<ActionResult<List<OrderMessageResponse>>> GetMessages(int id)
+    {
+        var result = await orders.GetMessagesAsync(id, CurrentUserId(), IsAdminOrStaff());
+        return result.Succeeded ? result.Value! : NotFound(new { error = result.Error });
+    }
+
+    [HttpPost("{id:int}/messages")]
+    public async Task<ActionResult<OrderMessageResponse>> AddMessage(int id, CreateOrderMessageRequest request)
+    {
+        var result = await orders.AddMessageAsync(id, CurrentUserId(), IsAdminOrStaff(), request.Body);
+        return result.Succeeded ? result.Value! : BadRequest(new { error = result.Error });
+    }
+
+    private bool IsAdminOrStaff() =>
+        User.IsInRole(UserRoles.Admin) || User.IsInRole(UserRoles.Staff);
+
     private int CurrentUserId() =>
         int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    private int? CurrentUserIdOrNull() =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 }

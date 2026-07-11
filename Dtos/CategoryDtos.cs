@@ -7,10 +7,26 @@ public class CategoryRequest
 {
     [Required, MaxLength(50)]
     public required string Name { get; set; }
+
+    [MaxLength(500)]
+    public string? ImageUrl { get; set; }
+
+    [MaxLength(200)]
+    public string? ImageAlt { get; set; }
+
+    public bool AllowsToppings { get; set; } = true;
 }
 
-public record CategoryResponse(int Id, string Name, int ProductCount, DateTime CreatedAt, DateTime UpdatedAt)
+public record CategoryResponse(
+    int Id,
+    string Name,
+    int ProductCount,
+    string ImageUrl,
+    string ImageAlt,
+    bool AllowsToppings,
+    DateTime CreatedAt,
+    DateTime UpdatedAt)
 {
     public static CategoryResponse From(Category c) =>
-        new(c.Id, c.Name, c.Products.Count, c.CreatedAt, c.UpdatedAt);
+        new(c.Id, c.Name, c.Products.Count, c.ImageUrl ?? "", c.ImageAlt ?? "", c.AllowsToppings, c.CreatedAt, c.UpdatedAt);
 }

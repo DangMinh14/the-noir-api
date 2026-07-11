@@ -15,7 +15,7 @@ public class UploadsController(IUploadService uploads) : ControllerBase
     [RequestSizeLimit(5 * 1024 * 1024)]
     public async Task<ActionResult<UploadResponse>> UploadImage(IFormFile file)
     {
-        var result = await uploads.SaveProductImageAsync(file);
+        var result = await uploads.SaveImageAsync(file);
         return result.Succeeded
             ? new UploadResponse(result.Value!)
             : BadRequest(new { error = result.Error });

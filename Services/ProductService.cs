@@ -65,6 +65,7 @@ public class ProductService(AppDbContext db) : IProductService
         {
             Name = request.Name.Trim(),
             Description = request.Description.Trim(),
+            DescriptionHtml = string.IsNullOrWhiteSpace(request.DescriptionHtml) ? null : request.DescriptionHtml.Trim(),
             PriceVnd = request.PriceVnd,
             CategoryId = request.CategoryId,
             ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? FallbackImageUrl : request.ImageUrl.Trim(),
@@ -90,6 +91,7 @@ public class ProductService(AppDbContext db) : IProductService
 
         product.Name = request.Name.Trim();
         product.Description = request.Description.Trim();
+        product.DescriptionHtml = string.IsNullOrWhiteSpace(request.DescriptionHtml) ? null : request.DescriptionHtml.Trim();
         product.PriceVnd = request.PriceVnd;
         product.CategoryId = request.CategoryId;
         product.ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? FallbackImageUrl : request.ImageUrl.Trim();
