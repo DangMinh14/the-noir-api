@@ -1,14 +1,20 @@
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+
 namespace TheNoir.Api.Services;
 
-public class UploadService(IWebHostEnvironment env) : IUploadService
+// Uploads to Cloudinary instead of the local disk: Render's free tier wipes
+// its container filesystem on every redeploy/restart, which was silently
+// deleting product/category photos. Cloudinary URLs are absolute and stored
+// in the (persistent) Neon database, so images survive redeploys and are
+// shared between local dev and production without any file copying.
+public class UploadService(Cloudinary cloudinary) : IUploadService
 {
     private const long MaxSizeBytes = 5 * 1024 * 1024;
 
-    private static readonly Dictionary<string, string> AllowedTypes = new()
+    private static readonly HashSet<string> AllowedTypes = new()
     {
-        ["image/jpeg"] = ".jpg",
-        ["image/png"] = ".png",
-        ["image/webp"] = ".webp",
+        "image/jpeg", "image/png", "image/webp",
     };
 
     public async Task<ServiceResult<string>> SaveImageAsync(IFormFile file)
@@ -19,23 +25,20 @@ public class UploadService(IWebHostEnvironment env) : IUploadService
         if (file.Length > MaxSizeBytes)
             return ServiceResult<string>.Fail("File is larger than 5 MB.");
 
-        if (!AllowedTypes.TryGetValue(file.ContentType, out var extension))
+        if (!AllowedTypes.Contains(file.ContentType))
             return ServiceResult<string>.Fail("Only JPG, PNG or WEBP images are allowed.");
 
-        var webRoot = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
-        var uploadsDir = Path.Combine(webRoot, "uploads");
-        Directory.CreateDirectory(uploadsDir);
-
-        // Generated filename, never the client-supplied one, so nothing in
-        // the request can influence the path written to disk.
-        var fileName = $"{Guid.NewGuid():N}{extension}";
-        var fullPath = Path.Combine(uploadsDir, fileName);
-
-        await using (var stream = File.Create(fullPath))
+        await using var stream = file.OpenReadStream();
+        var uploadParams = new ImageUploadParams
         {
-            await file.CopyToAsync(stream);
-        }
+            File = new FileDescription(file.FileName, stream),
+            Folder = "thenoir",
+        };
 
-        return ServiceResult<string>.Ok($"/uploads/{fileName}");
+        var result = await cloudinary.UploadAsync(uploadParams);
+        if (result.Error is not null)
+            return ServiceResult<string>.Fail(result.Error.Message);
+
+        return ServiceResult<string>.Ok(result.SecureUrl.ToString());
     }
 }
