@@ -8,6 +8,9 @@ public class CategoryRequest
     [Required, MaxLength(50)]
     public required string Name { get; set; }
 
+    [MaxLength(280)]
+    public string? Description { get; set; }
+
     [MaxLength(500)]
     public string? ImageUrl { get; set; }
 
@@ -20,6 +23,7 @@ public class CategoryRequest
 public record CategoryResponse(
     int Id,
     string Name,
+    string Description,
     int ProductCount,
     string ImageUrl,
     string ImageAlt,
@@ -28,5 +32,5 @@ public record CategoryResponse(
     DateTime UpdatedAt)
 {
     public static CategoryResponse From(Category c) =>
-        new(c.Id, c.Name, c.Products.Count, c.ImageUrl ?? "", c.ImageAlt ?? "", c.AllowsToppings, c.CreatedAt, c.UpdatedAt);
+        new(c.Id, c.Name, c.Description ?? "", c.Products.Count, c.ImageUrl ?? "", c.ImageAlt ?? "", c.AllowsToppings, c.CreatedAt, c.UpdatedAt);
 }

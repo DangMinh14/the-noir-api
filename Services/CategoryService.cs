@@ -58,6 +58,7 @@ public class CategoryService(AppDbContext db) : ICategoryService
         var category = new Category
         {
             Name = name,
+            Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(),
             ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim(),
             ImageAlt = string.IsNullOrWhiteSpace(request.ImageAlt) ? null : request.ImageAlt.Trim(),
             AllowsToppings = request.AllowsToppings,
@@ -81,6 +82,7 @@ public class CategoryService(AppDbContext db) : ICategoryService
             return ServiceResult<CategoryResponse>.Fail("A category with this name already exists.");
 
         category.Name = name;
+        category.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
         category.ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim();
         category.ImageAlt = string.IsNullOrWhiteSpace(request.ImageAlt) ? null : request.ImageAlt.Trim();
         category.AllowsToppings = request.AllowsToppings;
